@@ -25,19 +25,25 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     cb(null, file.mimetype === 'application/pdf');
   },
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB
+  limits: { fileSize: 50 * 1024 * 1024 } 
 });
 
 
 app.get('/api/printers', async (req, res) => {
   try {
-    const printers = await getPrinters();
+    const { stdout } = await execPromise('powershell "Get-Printer | Select-Object -ExpandProperty Name"');
+    const printers = stdout
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((name) => ({ name }));
     res.json(printers);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Printer detection failed:', err);
+    res.status(500).json({ error: 'Could not detect printers: ' + err.message });
   }
 });
-
+ 
 
 app.post('/api/upload', upload.single('file'), (req, res) => {
   if (!req.file) {

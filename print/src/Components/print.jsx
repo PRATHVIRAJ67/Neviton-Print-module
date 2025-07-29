@@ -15,7 +15,7 @@ export default function Print() {
 
   const loadPrinters = async () => {
     try {
-      const response = await axios.get('/api/printers');
+      const response = await axios.get('http://localhost:4000/api/printers');
       const printersData = Array.isArray(response.data) ? response.data : [];
       setPrinters(printersData);
       if (printersData.length > 0) {
@@ -49,10 +49,10 @@ export default function Print() {
       
       const formData = new FormData();
       formData.append('file', selectedFile);
-      const uploadResponse = await axios.post('/api/upload', formData);
+      const uploadResponse = await axios.post('http://localhost:4000/api/upload', formData);
       
       
-      await axios.post('/api/print', {
+      await axios.post('http://localhost:4000/api/print', {
         printer: selectedPrinter,
         filePath: uploadResponse.data.filePath
       });
