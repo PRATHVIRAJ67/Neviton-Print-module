@@ -31,19 +31,12 @@ const upload = multer({
 
 app.get('/api/printers', async (req, res) => {
   try {
-    const { stdout } = await execPromise('powershell "Get-Printer | Select-Object -ExpandProperty Name"');
-    const printers = stdout
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0)
-      .map((name) => ({ name }));
+    const printers = await getPrinters();
     res.json(printers);
   } catch (err) {
-    console.error('Printer detection failed:', err);
-    res.status(500).json({ error: 'Could not detect printers: ' + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
- 
 
 app.post('/api/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
